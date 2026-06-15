@@ -96,7 +96,6 @@ def elegir_continente():
 
 #Funcion al elegir #1 en el menu-
 def agregar_pais():
-    # Envolvemos toda la función para que un error inesperado no rompa el programa
     try:
         paises = leer_csv()   # ← LEER CSV
 
@@ -106,15 +105,16 @@ def agregar_pais():
             print("No puede estar vacío.")
             nombre = input("Nombre del país: ").strip()
 
-        # Validar duplicado (comparación sin acentos)
+        # VALIDAR QUE NO TENGA NÚMEROS NI SÍMBOLOS
+        while not nombre.replace(" ", "").isalpha():
+            print("El nombre no puede contener números ni símbolos.")
+            nombre = input("Nombre del país: ").strip()
 
+        # Validar duplicado (comparación sin acentos)
         nombre_normalizado = quitar_acentos(nombre.lower().replace(" ", ""))
 
         for p in paises:
-            # Normalizamos también el nombre del país del CSV para comparar correctamente
             nombre_csv_normalizado = quitar_acentos(p["nombre"].lower().replace(" ", ""))
-    
-            # Si coinciden sin acentos, significa que el país ya existe
             if nombre_normalizado == nombre_csv_normalizado:
                 print("Ese país ya existe.")
                 return
@@ -138,7 +138,6 @@ def agregar_pais():
                 print("Debe ser un número entero.")
 
         # Continente
-        # Selección de continente
         continente_seleccionado = elegir_continente()
 
         # Agregar a la lista
@@ -147,7 +146,6 @@ def agregar_pais():
             "poblacion": poblacion,
             "superficie": superficie,
             "continente": continente_seleccionado
-
         })
 
         guardar_csv(paises)   # ← GUARDAR CSV
@@ -155,7 +153,6 @@ def agregar_pais():
         print("País agregado correctamente.")
 
     except Exception as e:
-        # Si ocurre algo inesperado, lo mostramos y salimos de la función sin romper el programa
         print(f"Ocurrió un error inesperado al agregar el país: {e}")
 
 #Funcion al elegir #4 en el menu-
@@ -314,10 +311,8 @@ def estadisticas():
 #Funcion al elegir #2 en el menu
 def actualizar_pais():
     try:
-        # Leemos todos los países desde el archivo CSV
         paises = leer_csv()
 
-        # Si no hay datos, no se puede actualizar nada
         if len(paises) == 0:
             print("No hay datos cargados en el sistema.")
             return
@@ -328,86 +323,89 @@ def actualizar_pais():
             print("El nombre no puede estar vacío.")
             nombre = input("Ingrese el nombre del país a actualizar: ").strip()
 
-        # Normalizamos el nombre ingresado para buscar sin acentos
+        # Normalizamos para buscar sin acentos
         nombre_normalizado = quitar_acentos(nombre.lower().replace(" ", ""))
 
         pais_encontrado = None
 
         for pais in paises:
-            # Normalizamos también el nombre del CSV
             nombre_csv_normalizado = quitar_acentos(pais["nombre"].lower().replace(" ", ""))
-
-            # Si coinciden sin acentos, encontramos el país
             if nombre_normalizado == nombre_csv_normalizado:
                 pais_encontrado = pais
                 break
 
-        # Si no se encontró, avisamos
         if pais_encontrado is None:
             print("No se encontró un país con ese nombre.")
             return
 
-        # Mostramos los datos actuales del país
+        # Mostramos datos actuales
         print("Datos actuales del país:")
-        print(f"Nombre: {pais_encontrado['nombre']}")
-        print(f"Población: {pais_encontrado['poblacion']}")
-        print(f"Superficie: {pais_encontrado['superficie']}")
-        print(f"Continente: {pais_encontrado['continente']}")
+        print(f"1) Nombre: {pais_encontrado['nombre']}")
+        print(f"2) Población: {pais_encontrado['poblacion']}")
+        print(f"3) Superficie: {pais_encontrado['superficie']}")
+        print(f"4) Continente: {pais_encontrado['continente']}")
+        print("0) Cancelar actualización")
 
-        # Pedimos nuevos valores (Enter = mantener el actual)
-        nuevo_nombre = input("Nuevo nombre (Enter para mantener): ").strip()
-        if nuevo_nombre == "":
-            nuevo_nombre = pais_encontrado["nombre"]
+        # Menú de selección
+        opcion = input("Seleccione el dato que desea modificar: ").strip()
 
-        # Nueva población
-        while True:
-            nuevo_poblacion = input("Nueva población (Enter para mantener): ").strip()
-            if nuevo_poblacion == "":
-                nuevo_poblacion = pais_encontrado["poblacion"]
-                break
-            try:
-                nuevo_poblacion = int(nuevo_poblacion)
-                break
-            except:
-                print("Debe ser un número entero.")
+        if opcion == "0":
+            print("Actualización cancelada.")
+            return
 
-        # Nueva superficie
-        while True:
-            nuevo_superficie = input("Nueva superficie (Enter para mantener): ").strip()
-            if nuevo_superficie == "":
-                nuevo_superficie = pais_encontrado["superficie"]
-                break
-            try:
-                nuevo_superficie = int(nuevo_superficie)
-                break
-            except:
-                print("Debe ser un número entero.")
+        # -------------------------
+        # MODIFICAR NOMBRE
+        # -------------------------
+        if opcion == "1":
+            nuevo_nombre = input("Nuevo nombre: ").strip()
+            while nuevo_nombre == "":
+                print("El nombre no puede estar vacío.")
+                nuevo_nombre = input("Nuevo nombre: ").strip()
+            pais_encontrado["nombre"] = nuevo_nombre
 
-        # Nuevo Continente
-        print("Seleccione el nuevo continente (Enter para mantener el actual):")
-        opcion = input("Presione Enter para mantener o cualquier tecla para cambiar: ").strip()
+        # -------------------------
+        # MODIFICAR POBLACIÓN
+        # -------------------------
+        elif opcion == "2":
+            while True:
+                nuevo_poblacion = input("Nueva población: ").strip()
+                try:
+                    nuevo_poblacion = int(nuevo_poblacion)
+                    pais_encontrado["poblacion"] = nuevo_poblacion
+                    break
+                except:
+                    print("Debe ser un número entero.")
 
-        if opcion == "":
-            # Mantener el continente actual
-            nuevo_continente = pais_encontrado["continente"]
-        else:
-            # Usamos la misma función que en agregar_pais()
+        # -------------------------
+        # MODIFICAR SUPERFICIE
+        # -------------------------
+        elif opcion == "3":
+            while True:
+                nuevo_superficie = input("Nueva superficie: ").strip()
+                try:
+                    nuevo_superficie = int(nuevo_superficie)
+                    pais_encontrado["superficie"] = nuevo_superficie
+                    break
+                except:
+                    print("Debe ser un número entero.")
+
+        # -------------------------
+        # MODIFICAR CONTINENTE
+        # -------------------------
+        elif opcion == "4":
+            print("Seleccione el nuevo continente:")
             nuevo_continente = elegir_continente()
-        # --------------------------------------------------------------
+            pais_encontrado["continente"] = nuevo_continente
 
-        # Actualizamos los datos del país encontrado
-        pais_encontrado["nombre"] = nuevo_nombre
-        pais_encontrado["poblacion"] = nuevo_poblacion
-        pais_encontrado["superficie"] = nuevo_superficie
-        pais_encontrado["continente"] = nuevo_continente
+        else:
+            print("Opción inválida.")
+            return
 
-        # Guardamos la lista completa nuevamente en el CSV
+        # Guardamos cambios
         guardar_csv(paises)
-
         print("País actualizado correctamente.")
 
     except Exception as e:
-        # Captura cualquier error inesperado
         print("Ocurrió un error:", e)
 
 #Funcion al elegir #3 en el menu

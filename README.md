@@ -49,4 +49,7 @@ El archivo `datos_geograficos.csv` contiene los siguientes campos:
     "superficie": int,   # Extensión territorial en kilómetros cuadrados (int)
     "continente": str    # Dados por defectos (america/asia/africa/oceania/europa)
 
+## Video Demostrativo
+Enlace del video: https://www.youtube.com/watch?v=XokzrS1OL5o 
+
 
